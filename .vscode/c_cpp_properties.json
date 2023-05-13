@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Shayan",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/mingw64/include/c++/12.2.0",
+                "C:/mingw64/include/c++/12.2.0/experimental"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22000.0",
+            "compilerPath": "C:\\mingw64\\bin\\g++.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
