@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 
 enum class ListType { Single, Double, Circular };
 
@@ -45,12 +46,24 @@ private:
     T* m_ptr;
 };
 
+/*List Interface*/
 template <typename T>
 class ListBase {
+
+protected:
+    size_t m_size;
+
 public:
-    virtual void add(T value) = 0;
-    virtual void remove(T value) = 0;
-    virtual void print() const = 0;
+    ListBase() : m_size(0) {}
+
+    virtual void add_front(T value) = 0;
+    virtual void add_at(T value, size_t index) = 0;
+    virtual void add_back(T value) = 0;
+
+    virtual void remove_front(T value) = 0;
+    virtual void remove_at(T value, size_t index) = 0;
+    virtual void remove_back(T value) = 0;
+
     virtual ListIterator<T> begin() const = 0;
     virtual ListIterator<T> end() const = 0;
 
@@ -59,24 +72,22 @@ public:
     using const_iterator = ListIterator<const T>;
 };
 
+/*Generic Class with enum templated argument*/
 template <typename T, ListType LT = ListType::Single>
 class List : public ListBase<T> {
+
 public:
     List() {
         std::cout << "Creating List of type " << static_cast<int>(LT) << std::endl;
     }
 
-    void add(T value) override {
-        // Add value to the list
-    }
+    void add_front(T value) override { std::cout << "Generic add_front" << std::endl; }
+    void add_at(T value, size_t index) override {}
+    void add_back(T value) override {}
 
-    void remove(T value) override {
-        // Remove value from the list
-    }
-
-    void print() const override {
-        // Print the contents of the list
-    }
+    void remove_front(T value) override {}
+    void remove_at(T value, size_t index) override {}
+    void remove_back(T value) override {}
 
     ListIterator<T> begin() const override {
         // Return an iterator to the beginning of the list
@@ -90,91 +101,27 @@ public:
 };
 
 template <typename T>
-class List<T, ListType::Single> : public ListBase<T> {
+class List<T, ListType::Double>
+{
 public:
-    List() {
-        std::cout << "Creating Single List" << std::endl;
-    }
-
-    void add(T value) override {
-        // Add value to the single-linked list
-    }
-
-    void remove(T value) override {
-        // Remove value from the single-linked list
-    }
-
-    void print() const override {
-        // Print the contents of the single-linked list
-    }
-
-    ListIterator<T> begin() const override {
-        // Return an iterator to the beginning of the single-linked list
-        return ListIterator<T>(nullptr);
-    }
-
-    ListIterator<T> end() const override {
-        // Return an iterator to the end of the single-linked list
-        return ListIterator<T>(nullptr);
+    void add_back(const T& value)
+    {
+        std::cout << "Adding " << value << " to Double List" << std::endl;
     }
 };
 
 template <typename T>
-class List<T, ListType::Double> : public ListBase<T> {
+class List<T, ListType::Circular>
+{
 public:
-    List() {
-        std::cout << "Creating Double List" << std::endl;
-    }
-
-    void add(T value) override {
-        // Add value to the double-linked list
-    }
-
-    void remove(T value) override {
-        // Remove value from the double-linked list
-    }
-
-    void print() const override {
-        // Print the contents of the double-linked list
-    }
-
-    ListIterator<T> begin() const override {
-        // Return an iterator to the beginning of the double-linked list
-        return ListIterator<T>(nullptr);
-    }
-
-    ListIterator<T> end() const override {
-        // Return an iterator to the end of the double-linked list
-        return ListIterator<T>(nullptr);
+    void add_back(const T& value)
+    {
+        std::cout << "Adding " << value << " to Circular List" << std::endl;
     }
 };
 
-template <typename T>
-class List<T, ListType::Circular> : public ListBase<T> {
-public:
-    List() {
-        std::cout << "Creating Circular List" << std::endl;
-    }
-
-    void add(T value) override {
-        // Add value to the circular-linked list
-    }
-
-    void remove(T value) override {
-        // Remove value from the circular-linked list
-    }
-
-    void print() const override {
-        // Print the contents of the circular-linked list
-    }
-
-    ListIterator<T> begin() const override {
-        // Return an iterator to the beginning of the circular-linked list
-        return ListIterator<T>(nullptr);
-    }
-
-    ListIterator<T> end() const override {
-        // Return an iterator to the end of the circular-linked list
-        return ListIterator<T>(nullptr);
-    }
-};
+int main()
+{
+    List<int> m_List;
+    m_List.add_back(5);
+}
