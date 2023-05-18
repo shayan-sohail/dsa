@@ -20,18 +20,18 @@ class ListBase
 protected:
     size_t m_size;
     Node<T>* m_head;
-    Node<T>* m_tail; /*One past the last element*/
+    Node<T>* m_tail; /*Last Element*/
 
 public:
     ListBase() : m_size(0), m_head(nullptr), m_tail(nullptr) {}
 
     virtual void add_front(T value) = 0;
-    virtual void add_at(T value, size_t index) = 0;
+    virtual void add_at(size_t index, T value) = 0;
     virtual void add_back(T value) = 0;
 
-    virtual void remove_front(T value) = 0;
-    virtual void remove_at(T value, size_t index) = 0;
-    virtual void remove_back(T value) = 0;
+    virtual Node<T>* remove_front() = 0;
+    virtual Node<T>* remove_at(size_t index) = 0;
+    virtual Node<T>* remove_back() = 0;
 
     virtual void clear() = 0;
 };
@@ -56,20 +56,45 @@ public:
         Node<T>* temp = new Node<T>(value);
         temp->next = this->m_head;
         this->m_head = temp;
+
+        if (this->m_size == 1) this->m_tail = this->m_head;
     }
 
-    void add_at(T value, size_t index) override {}
-    void add_back(T value) override {}
+    void add_at(size_t index, T value) override
+    {
+        if (index > this->m_size && index < 0) return;
 
-    void remove_front(T value) override {}
-    void remove_at(T value, size_t index) override {}
-    void remove_back(T value) override {}
+        if (index == 0) add_front(value);
+        else if (index == this->m_size) add_back(value);
+        else
+        {
+            auto itr = this->m_head;
+            for (int i = 1; i < index; i++) itr = itr->next;
+
+            Node<T>* temp = new Node<T>(value);
+            temp->next = itr->next;
+            itr->next = temp;
+        }
+    }
+
+
+    void add_back(T value) override 
+    {
+        this->m_size++;
+        Node<T>* temp = new Node<T>(value);
+        this->m_tail->next = temp;
+        this->m_tail = temp;
+    }
+
+    Node<T>* remove_front() override {return nullptr;}
+    Node<T>* remove_at(size_t index) override {return nullptr;}
+    Node<T>* remove_back() override {return nullptr;}
 
     void print()
     {
         std::cout << "Size is " << this->m_size << std::endl;
         Node<T>* it = this->m_head;
-        while (it != this->m_tail)
+        while (it != nullptr)
         {
             std::cout << it->data << std::endl;
             it = it->next;
@@ -78,7 +103,7 @@ public:
     void clear() override
     {
         Node<T>* it = this->m_head;
-        while (it != this->m_tail)
+        while (it != nullptr)
         {
             Node<T>* temp = it;
             it = it->next;
@@ -86,6 +111,7 @@ public:
             this->m_size--;
         }
         this->m_head = nullptr;
+        std::cout << "Linked List Cleared\n";
     }
 };
 
@@ -118,8 +144,12 @@ int main()
     m_List.add_front(3);
     m_List.add_front(2);
     m_List.add_front(1);
+    m_List.add_back(6);
+    m_List.add_back(7);
     m_List.print();
-    m_List.clear();
+    
+    m_List.add_at(4, 50);
+    m_List.add_back(51);
     m_List.print();
 
 }
