@@ -1,4 +1,5 @@
 #include <iostream>
+#include <optional>
 #include <list>
 
 enum class ListType { Single, Double, Circular };
@@ -29,9 +30,9 @@ public:
     virtual void add_at(size_t index, T value) = 0;
     virtual void add_back(T value) = 0;
 
-    virtual Node<T>* remove_front() = 0;
-    virtual Node<T>* remove_at(size_t index) = 0;
-    virtual Node<T>* remove_back() = 0;
+    virtual std::optional<T> remove_front() = 0;
+    virtual std::optional<T> remove_at(size_t index) = 0;
+    virtual std::optional<T> remove_back() = 0;
 
     virtual void clear() = 0;
 };
@@ -68,6 +69,7 @@ public:
         else if (index == this->m_size) add_back(value);
         else
         {
+            this->m_size++;
             auto itr = this->m_head;
             for (int i = 1; i < index; i++) itr = itr->next;
 
@@ -77,7 +79,6 @@ public:
         }
     }
 
-
     void add_back(T value) override 
     {
         this->m_size++;
@@ -86,9 +87,51 @@ public:
         this->m_tail = temp;
     }
 
-    Node<T>* remove_front() override {return nullptr;}
-    Node<T>* remove_at(size_t index) override {return nullptr;}
-    Node<T>* remove_back() override {return nullptr;}
+    std::optional<T> remove_front() override 
+    {
+        if (this->m_size == 0) return std::nullopt;
+
+        this->m_size--;
+        Node<T>* temp = this->m_head;
+        T val = temp->data;
+        this->m_head = temp->next;
+        delete temp;
+        return val;
+    }
+
+    std::optional<T> remove_at(size_t index) override 
+    {
+        if (index > this->m_size-1 || this->m_size == 0) return std::nullopt;
+
+
+        if (index == 0) return remove_front();
+        else if (index == this->m_size - 1) return remove_back();
+        else
+        {
+            this->m_size--;
+            auto itr = this->m_head;
+            for (int i = 1; i < index; i++) itr = itr->next;
+            Node<T>* temp = itr->next;
+            itr->next = temp->next;
+            T val = temp->data;
+            delete temp;
+            return val;
+        }
+    }
+    std::optional<T> remove_back() override 
+    {
+        if (this->m_size == 0) return std::nullopt;
+
+        this->m_size--;
+        Node<T>* temp = this->m_head;
+        while (temp->next != this->m_tail) temp = temp->next;
+
+        T val = this->m_tail->data;
+        this->m_tail = temp;
+        this->m_tail->next = nullptr;
+        delete temp->next;
+        return val;
+    }
 
     void print()
     {
@@ -100,6 +143,7 @@ public:
             it = it->next;
         }
     }
+
     void clear() override
     {
         Node<T>* it = this->m_head;
@@ -152,4 +196,24 @@ int main()
     m_List.add_back(51);
     m_List.print();
 
+    std::cout << "Removal\n";
+    std::cout << "Remove Front -> " << *m_List.remove_front() << std::endl;
+    m_List.print();
+
+    std::cout << "Remove back -> " << *m_List.remove_back() << std::endl;
+    m_List.print();
+
+    std::cout << "Remove at 2 -> " << *m_List.remove_at(2) << std::endl;
+    m_List.print();
+
+    std::cout << "Remove at 0 -> " << *m_List.remove_at(0) << std::endl;
+    m_List.print();
+
+    std::cout << "Remove at 3 -> " << *m_List.remove_at(3) << std::endl;
+    m_List.print();
+
+    auto x = m_List.remove_at(5);
+    if (x) std::cout << "Remove at 5 -> " << *x << std::endl;
+    else {std::cout << "Out of Bound\n";}
+    m_List.print();
 }
