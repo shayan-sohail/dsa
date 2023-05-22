@@ -1,5 +1,6 @@
 #include <iostream>
 #include <optional>
+#include <memory>
 #include <list>
 
 enum class ListType { Single, Double, Circular };
@@ -9,7 +10,7 @@ class Node
 {
 public:
     T data;
-    Node* next;
+    std::shared_ptr<Node> next;
     Node(T value) : data(value), next(nullptr) {}
 };
 
@@ -20,8 +21,8 @@ class ListBase
 {
 protected:
     size_t m_size;
-    Node<T>* m_head;
-    Node<T>* m_tail; /*Last Element*/
+    std::shared_ptr<Node<T>> m_head;
+    std::shared_ptr<Node<T>> m_tail; /*Last Element*/
 
 public:
     ListBase() : m_size(0), m_head(nullptr), m_tail(nullptr) {}
@@ -54,7 +55,7 @@ public:
     void add_front(T value) override
     {
         this->m_size++;
-        Node<T>* temp = new Node<T>(value);
+        std::shared_ptr<Node<T>> temp = std::make_shared<Node<T>>(value);
         temp->next = this->m_head;
         this->m_head = temp;
 
@@ -73,7 +74,7 @@ public:
             auto itr = this->m_head;
             for (int i = 1; i < index; i++) itr = itr->next;
 
-            Node<T>* temp = new Node<T>(value);
+            std::shared_ptr<Node<T>> temp = std::make_shared<Node<T>>(value);
             temp->next = itr->next;
             itr->next = temp;
         }
@@ -82,7 +83,7 @@ public:
     void add_back(T value) override 
     {
         this->m_size++;
-        Node<T>* temp = new Node<T>(value);
+        std::shared_ptr<Node<T>> temp = std::make_shared<Node<T>>(value);
         this->m_tail->next = temp;
         this->m_tail = temp;
     }
@@ -92,10 +93,10 @@ public:
         if (this->m_size == 0) return std::nullopt;
 
         this->m_size--;
-        Node<T>* temp = this->m_head;
+        std::shared_ptr<Node<T>> temp(this->m_head);
         T val = temp->data;
         this->m_head = temp->next;
-        delete temp;
+        temp.reset();
         return val;
     }
 
@@ -111,10 +112,11 @@ public:
             this->m_size--;
             auto itr = this->m_head;
             for (int i = 1; i < index; i++) itr = itr->next;
-            Node<T>* temp = itr->next;
+
+            std::shared_ptr<Node<T>> temp(itr->next);
             itr->next = temp->next;
             T val = temp->data;
-            delete temp;
+            temp.reset();
             return val;
         }
     }
@@ -123,20 +125,20 @@ public:
         if (this->m_size == 0) return std::nullopt;
 
         this->m_size--;
-        Node<T>* temp = this->m_head;
+        std::shared_ptr<Node<T>> temp(this->m_head);
         while (temp->next != this->m_tail) temp = temp->next;
 
         T val = this->m_tail->data;
         this->m_tail = temp;
         this->m_tail->next = nullptr;
-        delete temp->next;
+        temp->next.reset();
         return val;
     }
 
     void print()
     {
         std::cout << "Size is " << this->m_size << std::endl;
-        Node<T>* it = this->m_head;
+        auto it = this->m_head;
         while (it != nullptr)
         {
             std::cout << it->data << std::endl;
@@ -146,12 +148,12 @@ public:
 
     void clear() override
     {
-        Node<T>* it = this->m_head;
+        auto it = this->m_head;
         while (it != nullptr)
         {
-            Node<T>* temp = it;
+            auto temp = it;
             it = it->next;
-            delete temp;
+            temp.reset();
             this->m_size--;
         }
         this->m_head = nullptr;
