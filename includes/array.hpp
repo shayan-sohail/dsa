@@ -47,27 +47,45 @@ public:
 
     size_t size() const noexcept { return m_size; }
 
-    T at(size_t index) const
+    T at(int index) const
     {
-        if (index >= m_size)
+        if (index < 0)
+        {
+            int i = m_size + index;
+            if (i >= 0) return data[i];
+            else throw std::out_of_range("Index out of bound");
+        }
+        else if (index >= m_size)
         {
             throw std::out_of_range("Index out of bound");
         }
         return (*this)[index];
     }
 
-    T& operator[](size_t index)
+    T& operator[](int index)
     {
-        if (index >= m_size)
+        if (index < 0)
+        {
+            int i = m_size + index;
+            if (i >= 0) return data[i];
+            else throw std::out_of_range("Index out of bound");
+        }
+        else if (index >= m_size)
         {
             throw std::out_of_range("Index out of bound");
         }
         return data[index];
     }
 
-    const T& operator[](size_t index) const noexcept
+    const T& operator[](int index) const noexcept
     {
-        if (index >= m_size)
+        if (index < 0)
+        {
+            int i = m_size + index;
+            if (i >= 0) return data[i];
+            else throw std::out_of_range("Index out of bound");
+        }
+        else if (index >= m_size)
         {
             throw std::out_of_range("Index out of bound");
         }
